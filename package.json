@@ -1,0 +1,37 @@
+{
+  "name": "tubing",
+  "description": "Simple Pipelines",
+  "version": "0.0.1",
+  "homepage": "https://github.com/mattinsler/tubing",
+  "author": {
+    "name": "Matt Insler",
+    "email": "matt.insler@gmail.com",
+    "url": "http://www.mattinsler.com"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/mattinsler/tubing.git"
+  },
+  "bugs": {
+    "url": "https://github.com/mattinsler/tubing/issues"
+  },
+  "licenses": [
+    {
+      "type": "MIT",
+      "url": "https://github.com/mattinsler/tubing/blob/master/LICENSE-MIT"
+    }
+  ],
+  "main": "dist/tubing",
+  "engines": {
+    "node": ">= 0.8.0"
+  },
+  "dependencies": {
+    "q": "~0.9.6"
+  },
+  "devDependencies": {
+    "mocha": "~1.7.0",
+    "grunt": "~0.3.15",
+    "grunt-contrib": "~0.3.0"
+  },
+  "keywords": []
+}
