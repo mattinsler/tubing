@@ -26,8 +26,10 @@ class Pipeline
     deferred = Q.defer()
     
     context = 
+      Q: Q
       defer: -> Q.defer()
       config: @config
+      pipeline: @
     
     q = Q()
     for pipe in @definition.pipes

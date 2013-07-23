@@ -1,10 +1,12 @@
 (function() {
-  var MethodPipe, ParallelPipe, Pipe, PipelinePipe, Q,
+  var MethodPipe, ParallelPipe, Pipe, PipelinePipe, Q, trycatch,
     __slice = [].slice,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
   Q = require('q');
+
+  trycatch = require('trycatch');
 
   Pipe = (function() {
 
@@ -40,17 +42,30 @@
     }
 
     MethodPipe.prototype.process = function(context, cmd) {
-      var d, ret;
+      var d, handle_error,
+        _this = this;
       d = Q.defer();
-      ret = this.method.call(context, cmd, function(err) {
+      handle_error = function(err) {
+        err.tubing = {
+          pipe: _this,
+          pipeline: context.pipeline
+        };
         if (err != null) {
           return d.reject(err);
         }
-        return d.resolve();
-      });
-      if ((ret != null) && Q.isPromise(ret)) {
-        d.resolve(ret);
-      }
+      };
+      trycatch(function() {
+        var ret;
+        ret = _this.method.call(context, cmd, function(err) {
+          if (err != null) {
+            return handle_error(err);
+          }
+          return d.resolve();
+        });
+        if ((ret != null) && Q.isPromise(ret)) {
+          return d.resolve(ret);
+        }
+      }, handle_error);
       return d.promise;
     };
 

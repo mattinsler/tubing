@@ -49,10 +49,12 @@
         _this = this;
       deferred = Q.defer();
       context = {
+        Q: Q,
         defer: function() {
           return Q.defer();
         },
-        config: this.config
+        config: this.config,
+        pipeline: this
       };
       q = Q();
       _ref = this.definition.pipes;

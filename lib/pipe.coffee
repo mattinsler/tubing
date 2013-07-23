@@ -1,4 +1,5 @@
 Q = require 'q'
+trycatch = require 'trycatch'
 
 class Pipe
   @define: (pipes...) ->
@@ -20,11 +21,19 @@ class MethodPipe extends Pipe
   process: (context, cmd) ->
     d = Q.defer()
     
-    ret = @method.call context, cmd, (err) ->
-      return d.reject(err) if err?
-      d.resolve()
+    handle_error = (err) =>
+      err.tubing =
+        pipe: @
+        pipeline: context.pipeline
+      d.reject(err) if err?
     
-    d.resolve(ret) if ret? and Q.isPromise(ret)
+    trycatch =>
+      ret = @method.call context, cmd, (err) =>
+        return handle_error(err) if err?
+        d.resolve()
+    
+      d.resolve(ret) if ret? and Q.isPromise(ret)
+    , handle_error
     
     d.promise
 

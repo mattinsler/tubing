@@ -6,11 +6,16 @@ TwitterSource = (emit) ->
   tweet()
 
 LogSink = (err, cmd) ->
+  console.log 'LogSink!'
   console.log arguments
 
 TweetTokenizer = (cmd, done) ->
+  setTimeout ->
+    throw new Error('FOO BAR BAZ!')
+  , 1000
+  
   cmd.tokens = cmd.tweet.split(/\s+/)
-  done()
+  # done()
 
 extract_urls = (cmd, done) ->
   d = @defer()
