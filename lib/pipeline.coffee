@@ -28,11 +28,11 @@ class Pipeline
     finish_pipeline = (err) =>
       if err?
         deferred.reject(err)
-        s.process(err, cmd) for s in @sinks
+        s.process(context, err, cmd) for s in @sinks
         return
       
       deferred.resolve()
-      s.process(null, cmd) for s in @sinks
+      s.process(context, null, cmd) for s in @sinks
     
     context = 
       Q: Q
@@ -52,6 +52,8 @@ class Pipeline
     deferred.promise
   
   publish_to: (sink) ->
+    Sink = require './sink'
+    sink = new Sink(sink) unless sink instanceof Sink
     @sinks.push(sink)
     @
 

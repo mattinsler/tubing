@@ -3,7 +3,7 @@ class Sink
   
   constructor: (@method) ->
     
-  process: (err, cmd) ->
-    @method(err, cmd)
+  process: (context, err, cmd) ->
+    @method.call(context, err, cmd)
 
 module.exports = Sink

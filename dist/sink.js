@@ -11,8 +11,8 @@
       this.method = method;
     }
 
-    Sink.prototype.process = function(err, cmd) {
-      return this.method(err, cmd);
+    Sink.prototype.process = function(context, err, cmd) {
+      return this.method.call(context, err, cmd);
     };
 
     return Sink;

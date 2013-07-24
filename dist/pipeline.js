@@ -58,7 +58,7 @@
           _ref = _this.sinks;
           for (_i = 0, _len = _ref.length; _i < _len; _i++) {
             s = _ref[_i];
-            s.process(err, cmd);
+            s.process(context, err, cmd);
           }
           return;
         }
@@ -67,7 +67,7 @@
         _results = [];
         for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
           s = _ref1[_j];
-          _results.push(s.process(null, cmd));
+          _results.push(s.process(context, null, cmd));
         }
         return _results;
       };
@@ -93,6 +93,11 @@
     };
 
     Pipeline.prototype.publish_to = function(sink) {
+      var Sink;
+      Sink = require('./sink');
+      if (!(sink instanceof Sink)) {
+        sink = new Sink(sink);
+      }
       this.sinks.push(sink);
       return this;
     };
