@@ -1,6 +1,6 @@
 # tubing
 
-Simple Pielines
+Simple Pipelines
 
 ## Installation
 ```
