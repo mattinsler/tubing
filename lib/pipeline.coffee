@@ -11,8 +11,8 @@ class Definition
     @pipes.push(Pipe.define(pipes...))
     @
   
-  configure: (opts) ->
-    new Pipeline(@, opts)
+  configure: (config = {}) ->
+    new Pipeline(@, config)
 
 class Pipeline
   @Definition: Definition
@@ -25,22 +25,29 @@ class Pipeline
   push: (cmd) ->
     deferred = Q.defer()
     
+    finish_pipeline = (err) =>
+      if err?
+        deferred.reject(err)
+        s.process(err, cmd) for s in @sinks
+        return
+      
+      deferred.resolve()
+      s.process(null, cmd) for s in @sinks
+    
     context = 
       Q: Q
       defer: -> Q.defer()
       config: @config
       pipeline: @
+      exit_pipeline: finish_pipeline
     
     q = Q()
     for pipe in @definition.pipes
       q = q.then(pipe.process.bind(pipe, context, cmd))
     
-    q.then =>
-      deferred.resolve()
-      s.process(null, cmd) for s in @sinks
-    , (err) =>
-      deferred.reject(err)
-      s.process(err, cmd) for s in @sinks
+    q.then ->
+      finish_pipeline()
+    , finish_pipeline
     
     deferred.promise
   

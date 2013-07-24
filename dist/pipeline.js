@@ -22,8 +22,11 @@
       return this;
     };
 
-    Definition.prototype.configure = function(opts) {
-      return new Pipeline(this, opts);
+    Definition.prototype.configure = function(config) {
+      if (config == null) {
+        config = {};
+      }
+      return new Pipeline(this, config);
     };
 
     return Definition;
@@ -45,25 +48,20 @@
     }
 
     Pipeline.prototype.push = function(cmd) {
-      var context, deferred, pipe, q, _i, _len, _ref,
+      var context, deferred, finish_pipeline, pipe, q, _i, _len, _ref,
         _this = this;
       deferred = Q.defer();
-      context = {
-        Q: Q,
-        defer: function() {
-          return Q.defer();
-        },
-        config: this.config,
-        pipeline: this
-      };
-      q = Q();
-      _ref = this.definition.pipes;
-      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-        pipe = _ref[_i];
-        q = q.then(pipe.process.bind(pipe, context, cmd));
-      }
-      q.then(function() {
-        var s, _j, _len1, _ref1, _results;
+      finish_pipeline = function(err) {
+        var s, _i, _j, _len, _len1, _ref, _ref1, _results;
+        if (err != null) {
+          deferred.reject(err);
+          _ref = _this.sinks;
+          for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+            s = _ref[_i];
+            s.process(err, cmd);
+          }
+          return;
+        }
         deferred.resolve();
         _ref1 = _this.sinks;
         _results = [];
@@ -72,17 +70,25 @@
           _results.push(s.process(null, cmd));
         }
         return _results;
-      }, function(err) {
-        var s, _j, _len1, _ref1, _results;
-        deferred.reject(err);
-        _ref1 = _this.sinks;
-        _results = [];
-        for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
-          s = _ref1[_j];
-          _results.push(s.process(err, cmd));
-        }
-        return _results;
-      });
+      };
+      context = {
+        Q: Q,
+        defer: function() {
+          return Q.defer();
+        },
+        config: this.config,
+        pipeline: this,
+        exit_pipeline: finish_pipeline
+      };
+      q = Q();
+      _ref = this.definition.pipes;
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        pipe = _ref[_i];
+        q = q.then(pipe.process.bind(pipe, context, cmd));
+      }
+      q.then(function() {
+        return finish_pipeline();
+      }, finish_pipeline);
       return deferred.promise;
     };
 

@@ -10,12 +10,8 @@ LogSink = (err, cmd) ->
   console.log arguments
 
 TweetTokenizer = (cmd, done) ->
-  setTimeout ->
-    throw new Error('FOO BAR BAZ!')
-  , 1000
-  
   cmd.tokens = cmd.tweet.split(/\s+/)
-  # done()
+  done()
 
 extract_urls = (cmd, done) ->
   d = @defer()
@@ -37,12 +33,21 @@ extract_names = (cmd, done) ->
   done()
 
 
+exit_early = (cmd, done) ->
+  @exit_pipeline()
+
 
 UrlExtractionPipeline = tubing.pipeline('URL Extracter')
   .then(extract_urls)
   .then(shorten_urls)
 
 TwitterPipeline = tubing.pipeline('Twitter Pipeline')
+  .then(tubing.exit_unless_config_true('process'))
+  # .then(tubing.exit_if('tweet'))
+  # .then(tubing.exit_if_config((c) -> c.process is false))
+  # .then(tubing.exit_if('not tweet'))
+  # .then(tubing.exit_if_config((c) -> c.process is false))
+  # .then(exit_early)
   .then(TweetTokenizer)
   .then(extract_names, UrlExtractionPipeline)
 
@@ -52,7 +57,9 @@ tweet = 'Hello @mattinsler, you should check out http://awesomebox.es'
 sink = tubing.sink(LogSink)
 source = tubing.source(TwitterSource)
 
-pipeline = TwitterPipeline.configure()
+pipeline = TwitterPipeline.configure(
+  process: true
+)
 
 pipeline.publish_to(sink)
 source.publish_to(pipeline)
