@@ -1,10 +1,12 @@
 (function() {
-  var MethodPipe, ParallelPipe, Pipe, PipelinePipe, Q, trycatch,
+  var MethodPipe, ParallelPipe, Pipe, PipelinePipe, Q, crypto, trycatch,
     __slice = [].slice,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
   Q = require('q');
+
+  crypto = require('crypto');
 
   trycatch = require('trycatch');
 
@@ -13,14 +15,19 @@
     function Pipe() {}
 
     Pipe.define = function() {
-      var Pipeline, pipes, x, _i, _ref;
+      var Pipeline, TempType, pipes, x, _i, _ref;
       pipes = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
       Pipeline = require('./pipeline');
       for (x = _i = 0, _ref = pipes.length; 0 <= _ref ? _i < _ref : _i > _ref; x = 0 <= _ref ? ++_i : --_i) {
         if (pipes[x] instanceof Pipeline.Definition) {
           pipes[x] = new PipelinePipe(pipes[x]);
         } else if (!(pipes[x] instanceof Pipe)) {
-          pipes[x] = new MethodPipe(pipes[x]);
+          if (Array.isArray(pipes[x])) {
+            TempType = MethodPipe.bind.apply(MethodPipe, [null].concat(pipes[x]));
+            pipes[x] = new TempType();
+          } else {
+            pipes[x] = new MethodPipe(pipes[x]);
+          }
         }
       }
       if (pipes.length > 1) {
@@ -37,14 +44,25 @@
 
     __extends(MethodPipe, _super);
 
-    function MethodPipe(method) {
+    function MethodPipe() {
+      var args, hash, method;
+      method = arguments[0], args = 2 <= arguments.length ? __slice.call(arguments, 1) : [];
       this.method = method;
+      this.args = args;
+      hash = crypto.createHash('sha1').update(this.method.toString());
+      if ((args != null) && args.length > 0) {
+        hash.update(JSON.stringify(this.args));
+      }
+      this.hash = hash.digest('hex');
     }
 
     MethodPipe.prototype.process = function(context, cmd) {
-      var d, handle_error,
+      var d, handle_error, method,
         _this = this;
       d = Q.defer();
+      if (Array.isArray(cmd)) {
+        cmd = cmd[0];
+      }
       handle_error = function(err) {
         err.tubing = {
           pipe: _this,
@@ -54,13 +72,18 @@
           return d.reject(err);
         }
       };
+      if ((this.args != null) && this.args.length > 0) {
+        method.apply(null, this.args);
+      } else {
+        method = this.method;
+      }
       trycatch(function() {
         var ret;
-        ret = _this.method.call(context, cmd, function(err) {
+        ret = method.call(context, cmd, function(err, data) {
           if (err != null) {
             return handle_error(err);
           }
-          return d.resolve();
+          return d.resolve(data || cmd);
         });
         if ((ret != null) && Q.isPromise(ret)) {
           return d.resolve(ret);
@@ -79,6 +102,9 @@
 
     function ParallelPipe(pipes) {
       this.pipes = pipes;
+      this.hash = this.pipes.map(function(p) {
+        return p.hash;
+      }).join();
     }
 
     ParallelPipe.prototype.process = function(context, cmd) {
@@ -97,6 +123,9 @@
 
     function PipelinePipe(pipeline_definition) {
       this.pipeline_definition = pipeline_definition;
+      this.hash = this.pipeline_definition.pipes.map(function(p) {
+        return p.hash;
+      }).join();
     }
 
     PipelinePipe.prototype.process = function(context, cmd) {
