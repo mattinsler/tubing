@@ -73,7 +73,7 @@
         }
       };
       if ((this.args != null) && this.args.length > 0) {
-        method.apply(null, this.args);
+        method = this.method.apply(null, this.args);
       } else {
         method = this.method;
       }
@@ -83,7 +83,7 @@
           if (err != null) {
             return handle_error(err);
           }
-          return d.resolve(data || cmd);
+          return d.resolve(data != null ? data : cmd);
         });
         if ((ret != null) && Q.isPromise(ret)) {
           return d.resolve(ret);

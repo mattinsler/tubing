@@ -38,14 +38,14 @@ class MethodPipe extends Pipe
       d.reject(err) if err?
     
     if @args? and @args.length > 0
-      method.apply(null, @args)
+      method = @method.apply(null, @args)
     else
       method = @method
     
     trycatch =>
       ret = method.call context, cmd, (err, data) =>
         return handle_error(err) if err?
-        d.resolve(data or cmd)
+        d.resolve(data ? cmd)
     
       d.resolve(ret) if ret? and Q.isPromise(ret)
     , handle_error

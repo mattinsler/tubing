@@ -35,9 +35,12 @@
     Definition.prototype.insert = function() {
       var Pipe, hash, opts, pipe, pipes, x, _i;
       pipes = 2 <= arguments.length ? __slice.call(arguments, 0, _i = arguments.length - 1) : (_i = 0, []), opts = arguments[_i++];
+      if (!((opts.before != null) || (opts.after != null) || (opts.instead_of != null))) {
+        throw new Error('Pipeline#insert() takes before, after, or instead_of');
+      }
       Pipe = require('./pipe');
       pipe = Pipe.define.apply(Pipe, pipes);
-      hash = Pipe.define(opts.before).hash;
+      hash = Pipe.define(opts.before || opts.after || opts.instead_of).hash;
       pipes = this.pipes.slice();
       x = index_of(pipes, function(p) {
         return p.hash === hash;
@@ -47,8 +50,36 @@
           pipes.splice(x, 0, pipe);
         } else if (opts.after != null) {
           pipes.splice(x + 1, 0, pipe);
+        } else if (opts.instead_of != null) {
+          pipes.splice(x, 1, pipe);
         }
       }
+      return new Definition(this.name, pipes, this.config_methods);
+    };
+
+    Definition.prototype.remove = function() {
+      var Pipe, hash, pipes;
+      pipes = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
+      Pipe = require('./pipe');
+      hash = Pipe.define(opts.before).hash;
+      pipes = this.pipes.slice().filter(function(pipe) {
+        return pipe.hash !== hash;
+      });
+      return new Definition(this.name, pipes, this.config_methods);
+    };
+
+    Definition.prototype.remove_nth = function() {
+      var Pipe, hash, n, pipes, x;
+      n = arguments[0], pipes = 2 <= arguments.length ? __slice.call(arguments, 1) : [];
+      Pipe = require('./pipe');
+      hash = Pipe.define(opts.before).hash;
+      x = 0;
+      pipes = this.pipes.slice().filter(function(pipe) {
+        if (pipe.hash === hash && ++x === n) {
+          return false;
+        }
+        return true;
+      });
       return new Definition(this.name, pipes, this.config_methods);
     };
 
@@ -117,7 +148,7 @@
     };
 
     Pipeline.prototype.push = function(cmd) {
-      var context, deferred, finish_pipeline, pipe, q, _i, _len, _ref,
+      var context, create_pipe_method, deferred, finish_pipeline, pipe, q, _i, _len, _ref,
         _this = this;
       deferred = Q.defer();
       finish_pipeline = function(err, data) {
@@ -151,6 +182,11 @@
         config: this.config,
         pipeline: this,
         exit_pipeline: finish_pipeline
+      };
+      create_pipe_method = function(pipe) {
+        return function(cmd) {
+          return pipe.process(context, cmd);
+        };
       };
       q = Q(cmd);
       _ref = this.pipes;

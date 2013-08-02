@@ -15,10 +15,13 @@ class Definition
     new Definition(@name, @pipes.concat(Pipe.define(pipes...)), @config_methods = [])
   
   insert: (pipes..., opts) ->
+    throw new Error('Pipeline#insert() takes before, after, or instead_of') unless opts.before? or opts.after? or opts.instead_of?
+    
     Pipe = require './pipe'
     
     pipe = Pipe.define(pipes...)
-    hash = Pipe.define(opts.before).hash
+    hash = Pipe.define(opts.before or opts.after or opts.instead_of).hash
+    
     pipes = @pipes.slice()
     x = index_of(pipes, (p) -> p.hash is hash)
     
@@ -27,7 +30,29 @@ class Definition
         pipes.splice(x, 0, pipe)
       else if opts.after?
         pipes.splice(x + 1, 0, pipe)
+      else if opts.instead_of?
+        pipes.splice(x, 1, pipe)
     
+    new Definition(@name, pipes, @config_methods)
+  
+  remove: (pipes...) ->
+    Pipe = require './pipe'
+    
+    hash = Pipe.define(opts.before).hash
+    pipes = @pipes.slice().filter (pipe) ->
+      pipe.hash isnt hash
+    
+    new Definition(@name, pipes, @config_methods)
+  
+  remove_nth: (n, pipes...) ->
+    Pipe = require './pipe'
+
+    hash = Pipe.define(opts.before).hash
+    x = 0
+    pipes = @pipes.slice().filter (pipe) ->
+      return false if pipe.hash is hash and ++x is n
+      true
+
     new Definition(@name, pipes, @config_methods)
   
   configure: (config) ->
@@ -91,6 +116,10 @@ class Pipeline
       config: @config
       pipeline: @
       exit_pipeline: finish_pipeline
+    
+    create_pipe_method = (pipe) ->
+      (cmd) ->
+        pipe.process(context, cmd)
     
     q = Q(cmd)
     for pipe in @pipes
