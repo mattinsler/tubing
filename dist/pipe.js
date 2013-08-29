@@ -1,5 +1,5 @@
 (function() {
-  var MethodPipe, ParallelPipe, Pipe, PipelinePipe, Q, crypto, trycatch,
+  var MethodPipe, ParallelPipe, Pipe, PipelinePipe, Q, crypto,
     __slice = [].slice,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -7,8 +7,6 @@
   Q = require('q');
 
   crypto = require('crypto');
-
-  trycatch = require('trycatch');
 
   Pipe = (function() {
 
@@ -57,7 +55,7 @@
     }
 
     MethodPipe.prototype.process = function(context, cmd) {
-      var d, handle_error, method,
+      var d, handle_error, method, ret,
         _this = this;
       d = Q.defer();
       if (Array.isArray(cmd)) {
@@ -77,18 +75,15 @@
       } else {
         method = this.method;
       }
-      trycatch(function() {
-        var ret;
-        ret = method.call(context, cmd, function(err, data) {
-          if (err != null) {
-            return handle_error(err);
-          }
-          return d.resolve(data != null ? data : cmd);
-        });
-        if ((ret != null) && Q.isPromise(ret)) {
-          return d.resolve(ret);
+      ret = method.call(context, cmd, function(err, data) {
+        if (err != null) {
+          return handle_error(err);
         }
-      }, handle_error);
+        return d.resolve(data != null ? data : cmd);
+      });
+      if ((ret != null) && Q.isPromise(ret)) {
+        d.resolve(ret);
+      }
       return d.promise;
     };
 

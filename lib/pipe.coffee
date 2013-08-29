@@ -1,6 +1,5 @@
 Q = require 'q'
 crypto = require 'crypto'
-trycatch = require 'trycatch'
 
 class Pipe
   @define: (pipes...) ->
@@ -42,13 +41,11 @@ class MethodPipe extends Pipe
     else
       method = @method
     
-    trycatch =>
-      ret = method.call context, cmd, (err, data) =>
-        return handle_error(err) if err?
-        d.resolve(data ? cmd)
-    
-      d.resolve(ret) if ret? and Q.isPromise(ret)
-    , handle_error
+    ret = method.call context, cmd, (err, data) =>
+      return handle_error(err) if err?
+      d.resolve(data ? cmd)
+  
+    d.resolve(ret) if ret? and Q.isPromise(ret)
     
     d.promise
 
