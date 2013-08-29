@@ -3,13 +3,11 @@ crypto = require 'crypto'
 
 class Pipe
   @define: (pipes...) ->
-    Pipeline = require './pipeline'
-    
     for x in [0...pipes.length]
-      if pipes[x] instanceof Pipeline.Definition
+      if pipes[x].__type__ is 'Pipeline.Definition'
         pipes[x] = new PipelinePipe(pipes[x])
       
-      else if !(pipes[x] instanceof Pipe)
+      else if pipes[x].__type__ isnt 'Pipe'
         if Array.isArray(pipes[x])
           TempType = MethodPipe.bind.apply(MethodPipe, [null].concat(pipes[x]))
           pipes[x] = new TempType()
@@ -18,6 +16,8 @@ class Pipe
     
     return new ParallelPipe(pipes) if pipes.length > 1
     pipes[0]
+
+Pipe::__type__ = 'Pipe'
 
 class MethodPipe extends Pipe
   constructor: (@method, @args...) ->

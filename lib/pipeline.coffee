@@ -137,4 +137,7 @@ class Pipeline
     @sinks.push(sink)
     @
 
+Pipeline::__type__ = 'Pipeline'
+Pipeline.Definition::__type__ = 'Pipeline.Definition'
+
 module.exports = Pipeline

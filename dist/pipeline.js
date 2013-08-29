@@ -214,6 +214,10 @@
 
   }).call(this);
 
+  Pipeline.prototype.__type__ = 'Pipeline';
+
+  Pipeline.Definition.prototype.__type__ = 'Pipeline.Definition';
+
   module.exports = Pipeline;
 
 }).call(this);

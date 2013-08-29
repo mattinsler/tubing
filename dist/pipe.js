@@ -13,13 +13,12 @@
     function Pipe() {}
 
     Pipe.define = function() {
-      var Pipeline, TempType, pipes, x, _i, _ref;
+      var TempType, pipes, x, _i, _ref;
       pipes = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
-      Pipeline = require('./pipeline');
       for (x = _i = 0, _ref = pipes.length; 0 <= _ref ? _i < _ref : _i > _ref; x = 0 <= _ref ? ++_i : --_i) {
-        if (pipes[x] instanceof Pipeline.Definition) {
+        if (pipes[x].__type__ === 'Pipeline.Definition') {
           pipes[x] = new PipelinePipe(pipes[x]);
-        } else if (!(pipes[x] instanceof Pipe)) {
+        } else if (pipes[x].__type__ !== 'Pipe') {
           if (Array.isArray(pipes[x])) {
             TempType = MethodPipe.bind.apply(MethodPipe, [null].concat(pipes[x]));
             pipes[x] = new TempType();
@@ -37,6 +36,8 @@
     return Pipe;
 
   })();
+
+  Pipe.prototype.__type__ = 'Pipe';
 
   MethodPipe = (function(_super) {
 
