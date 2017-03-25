@@ -2,8 +2,9 @@ import net from 'net';
 
 import NetConnection from './net-connection';
 
-function netConnector(connector, port) {
-  const connection = net.connect({ port });
+// opts = { port, host, path }
+function netConnector(connector, opts) {
+  const connection = net.connect(opts);
 
   // connection failure
   function onClose() {
