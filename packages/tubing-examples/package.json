@@ -1,13 +1,13 @@
 {
   "name": "tubing-examples",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "",
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
     "babel-loader": "6.3.2",
-    "tubing": "^0.1.0",
+    "tubing": "^0.1.1",
     "tubing-frame": "^0.1.0",
     "tubing-net": "^0.1.0",
     "tubing-protocols": "^0.1.0",
