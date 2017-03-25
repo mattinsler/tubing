@@ -10,6 +10,6 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "msgpack-lite": "^0.1.26"
+    "msgpack-lite": "0.1.26"
   }
 }

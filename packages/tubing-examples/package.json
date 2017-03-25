@@ -7,11 +7,11 @@
   "license": "ISC",
   "dependencies": {
     "babel-loader": "6.3.2",
-    "tubing": "^0.0.1",
-    "tubing-frame": "^0.0.1",
-    "tubing-net": "^0.0.1",
-    "tubing-protocols": "^0.0.1",
-    "tubing-websocket": "^0.0.1",
+    "tubing": "^0.1.0",
+    "tubing-frame": "^0.1.0",
+    "tubing-net": "^0.1.0",
+    "tubing-protocols": "^0.1.0",
+    "tubing-websocket": "^0.1.0",
     "webpack": "2.2.1",
     "webpack-dev-server": "2.2.1"
   }
