@@ -1,17 +1,17 @@
 {
   "name": "tubing-examples",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "",
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
     "babel-loader": "6.3.2",
-    "tubing": "^0.1.1",
-    "tubing-frame": "^0.1.0",
-    "tubing-net": "^0.1.0",
-    "tubing-protocols": "^0.1.0",
-    "tubing-websocket": "^0.1.0",
+    "tubing": "^0.1.2",
+    "tubing-frame": "^0.1.2",
+    "tubing-net": "^0.1.2",
+    "tubing-protocols": "^0.1.2",
+    "tubing-websocket": "^0.1.2",
     "webpack": "2.2.1",
     "webpack-dev-server": "2.2.1"
   }

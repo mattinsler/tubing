@@ -1,9 +1,11 @@
 {
   "name": "tubing-protocols",
-  "version": "0.1.0",
+  "version": "0.1.2",
   "description": "",
-  "main": "index.js",
-  "scripts": {},
+  "main": "lib/index.js",
+  "scripts": {
+    "build": "rm -rf lib; babel src -d lib --source-maps inline"
+  },
   "keywords": [],
   "author": "",
   "license": "ISC"

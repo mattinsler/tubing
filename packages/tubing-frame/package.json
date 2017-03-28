@@ -1,9 +1,13 @@
 {
   "name": "tubing-frame",
-  "version": "0.1.0",
+  "version": "0.1.2",
   "description": "",
-  "main": "index.js",
-  "scripts": {},
+  "scripts": {
+    "clean": "rm -rf lib connector.js listener.js",
+    "build:babel": "babel src -d lib --source-maps inline",
+    "build:create-aliases": "echo 'module.exports = require(\"./lib/connector\");' > connector.js; echo 'module.exports = require(\"./lib/listener\");' > listener.js",
+    "build": "npm run clean; npm run build:babel; npm run build:create-aliases"
+  },
   "keywords": [],
   "author": "",
   "license": "ISC",
