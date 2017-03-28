@@ -2,7 +2,9 @@
   "name": "",
   "version": "1.0.0",
   "description": "",
-  "scripts": {},
+  "scripts": {
+    "build": "lerna run build"
+  },
   "keywords": [],
   "author": "",
   "license": "ISC",
